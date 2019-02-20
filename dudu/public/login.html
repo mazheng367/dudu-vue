@@ -1,0 +1,282 @@
+<!DOCTYPE HTML>
+<html manifest="">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+    <title>登录 点动信息-专利管理系统(v1.0)</title>
+    <link rel="shortcut icon" href="resources/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            width: 100%;
+            min-height: 100%;
+            font-size: 12px;
+            font-family: 'Microsoft YaHei', 'Roboto', 'Helvetica Neue', helvetica, arial, verdana, sans-serif
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            background: #F1F4F5;
+            background-repeat: no-repeat;
+        }
+
+        .headernav {
+            width: 100%;
+            height: 66px;
+            background: #2C6BAE;
+        }
+
+        .loginLogo {
+            width: 350px;
+            height: 350px;
+            background: url(resources/dragon.png);
+        }
+
+        .loginlabel {
+            float: left;
+            width: 140px;
+            margin-left: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 6px 6px 0px;
+            height: 10px;
+            font-size: 14px;
+            color: #428bca;
+        }
+
+        .main_logo {
+            /*width: 218px;*/
+            /*height: 66px;*/
+            text-align: center;
+            /*margin-left: 100px;*/
+            /*background-image: url(resources/logo-index.png);*/
+            /*float: left;*/
+        }
+
+        .login-title {
+            background-color: #fff;
+            color: #000;
+            font-size: 22px;
+            font-weight: 600;
+            height: 40px;
+            line-height: 60px;
+            /*padding-left: 50px;*/
+            text-align: center;
+        }
+
+        .btn {
+            height: 50px;
+            width: 142px;
+            margin-left: 4px;
+            border: 1px solid transparent;
+            color: #fff;
+            background-color: #46BE8A;
+            font-size: 16px;
+            border-color: #46BE8A;
+            border-radius: 4px;
+        }
+
+        .btn-reg {
+            height: 50px;
+            width: 142px;
+            margin-left: 4px;
+            border: 1px solid transparent;
+            color: #ff8801;
+            /*background-color: #f57c00;*/
+            font-size: 16px;
+            border-color: #ff8801;
+            border-radius: 4px;
+        }
+
+        .btn-reg:hover {
+            color: #fff;
+            background-color: #ff8801;
+        }
+
+        .login-text-input {
+            text-indent: 15px;
+            height: 50px;
+            line-height: 25px;
+            font-size: 16px;
+            border: 1px solid #c7c7c7;
+            width: 300px;
+            margin-left: 30px;
+            border-radius: 4px;
+        }
+
+        .login-button {
+            height: 40px;
+            text-align: center;
+            padding: 22px 6px 6px 0px;
+        }
+
+        .login-copyright {
+            height: 40px;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .loginDiv {
+            position: absolute;
+            top: 100px;
+            /*width: 840px;*/
+            height: 360px;
+            left: 50%;
+            transform: translateX(-50%)
+            /*margin-left: -420px;*/
+        }
+
+        .login-logo {
+            width: 403px;
+            height: 350px;
+            float: left;
+        }
+
+        .login {
+            /*float: right;*/
+            width: 360px;
+            height: 380px;
+            top: 100px;
+            background: #FFFFFF;
+            /*border: rgb(46, 61, 116) 1px solid;*/
+        }
+
+        input:-webkit-autofill {
+            background-image: none;
+            color: rgb(0, 0, 0);
+        }
+
+        .main_contact {
+            float: right;
+            color: #fff;
+            padding-right: 20px;
+            display: none;
+        }
+
+        .text-invalid {
+            border-color: red;
+        }
+
+        .disable-button {
+            color: #ccc
+        }
+
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+    </style>
+    <script type="text/javascript" src="ajax.js?_=20181115"></script>
+    <script type="text/javascript" src="auth.js?_=20181115"></script>
+    <script type="text/javascript">
+        Auth.clear();
+
+        function register() {
+            //window.location.href = 'register.html';
+            window.location.href = 'http://tpr.hnipo.net/cas/login?service=http%3A%2F%2Ftpr.hnipo.net%2Fa%2Flogin%3FredirectUrl%3D%2Ff%2Ftemplate-2';
+        }
+
+        function login() {
+            var tenantCodeText = document.getElementById('tenantCode');
+            var usernameText = document.getElementById('userName');
+            var passwordText = document.getElementById('passWord');
+
+            if (!tenantCodeText.value) {
+                alert('请输入企业代号');
+                tenantCodeText.focus();
+                tenantCodeText.className += ' text-invalid';
+                return;
+            }
+
+            if (!usernameText.value) {
+                alert('请输入用户账号');
+                usernameText.focus();
+                usernameText.className += ' text-invalid';
+                return;
+            }
+
+            var params = {
+                'dudu-tenant': tenantCodeText.value,
+                userName: usernameText.value,
+                passWord: passwordText.value,
+            };
+            var btnLogin = document.getElementById('btn-loginsubmit');
+            btnLogin.setAttribute('disabled', 'disabled');
+            btnLogin.innerText = '登录中...';
+            btnLogin.className += ' disable-button';
+            ajax.post(LOGIN_API, params, function (response, xml) {
+                if (response.status === 401) {
+                    alert('登录失败');
+                    btnLogin.innerText = '登录';
+                    btnLogin.className = btnLogin.className.replace(/\s*disable-button\s*/g, '');
+                    btnLogin.removeAttribute('disabled');
+                    return;
+                }
+                var rs = JSON.parse(response.responseText);
+                if (rs.success) {
+                    Auth.init(rs.token, rs.tenant);
+                    Auth.redirectToIndex();
+                } else {
+                    alert('登录失败:' + response);
+                    btnLogin.innerText = '登录';
+                    btnLogin.className = btnLogin.className.replace(/\s*disable-button\s*/g, '');
+                    btnLogin.removeAttribute('disabled');
+                }
+            });
+        }
+
+        function keypress(e) {
+            var event = window.event || e;
+            if (event.keyCode === 13) {
+                login();
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="headernav">
+    <div class="main_logo"><img src="resources/logo-index.png"></div>
+    <!--<div class="main_contact">正式版即将上线！</div>-->
+</div>
+<div class="loginDiv">
+    <!--<div class="login-logo">-->
+    <!--<div class="loginLogo"></div>-->
+    <!--</div>-->
+    <div class="login">
+        <div class="login-title"><label class="login-title">知识产权管理平台</label></div>
+        <div class="login-input" onkeyup="keypress(event)">
+            <label class="loginlabel"></label>
+            <input type="text" id="tenantCode" placeholder="企业代号" class="login-text-input"/>
+            <label class="loginlabel"></label>
+            <input type="text" id="userName" placeholder="用户账号" class="login-text-input"/>
+            <label class="loginlabel"></label>
+            <input type="password" id="passWord" placeholder="密码" class="login-text-input"/>
+        </div>
+        <div class="login-button">
+            <button type="submit" id="btn-loginsubmit" class="btn" onclick="login();">登录</button>
+            <button type="button" id="btn-forgetpass" class="btn-reg" onclick="register();">立即注册</button>
+        </div>
+        <div class="login-copyright">点动信息 &copy; 2019</div>
+    </div>
+</div>
+</body>
+<script>
+    var textBoxs = document.querySelectorAll('.login-text-input');
+    for (var i = 0; i < textBoxs.length; i++) {
+        textBoxs[i].onfocus = function () {
+            this.className = this.className.replace(/\s*text-invalid\s*/g, '');
+        };
+        textBoxs[i].onblur = function () {
+            if (!this.value && this.className.indexOf('text-invalid') === -1) {
+                this.className += ' text-invalid';
+            }
+        };
+    }
+</script>
+</html>
