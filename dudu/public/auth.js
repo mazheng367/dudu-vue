@@ -1,4 +1,5 @@
-window.DEV_ENV = true; /** DONT CHANGE THIS LINE! */
+window.DEV_ENV = false;
+/** DONT CHANGE THIS LINE! */
 var SERVER_HOST = DEV_ENV ? "http://127.0.0.1:9002" : "http://114.215.18.188:9006";
 var SERVER_API = SERVER_HOST + "/api";
 var LOGIN_API = SERVER_API + "/user/Login";
