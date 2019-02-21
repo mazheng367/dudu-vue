@@ -1,16 +1,16 @@
 import axios from 'axios';
 import startsWith from 'lodash/startsWith';
+import Vue from "vue";
+import isEmpty from "lodash/isEmpty";
 
-export default class Request {
+export class Request {
 
-    // noinspection JSMethodCanBeStatic
     async saveData(api: string, pars: object | null): Promise<any> {
         const savedUrl = Request.formatApiUrl(api, {});
         const postedParams = pars || {};
         return await Request.request(savedUrl, postedParams);
     }
 
-    // noinspection JSMethodCanBeStatic
     async query(api: string, pars: object | null, method = "POST") {
         const savedUrl = Request.formatApiUrl(api, {});
         const postedParams = pars || {};
@@ -49,5 +49,58 @@ export default class Request {
             p = arr.join("&");
         }
         return `${(window as any).SERVER_HOST}/${api}${p ? "?" + p : ""}`;
+    }
+}
+
+export class VueRequest extends Request {
+    private _instance: Vue | null = null;
+
+    private _counter = 0;
+
+    set vueInstance(value: Vue) {
+        this._instance = value;
+    }
+
+    async saveData(api: string, params: object) {
+        try {
+            this.showLoading();
+            const data = await super.saveData(api, params);
+            this.hideLoading();
+            return data;
+        } catch (e) {
+            this.hideLoading();
+            throw e;
+        }
+    }
+
+    async postData(api: string, params: object) {
+        try {
+            this.showLoading();
+            const data = await super.query(api, params);
+            this.hideLoading();
+            return data;
+        } catch (e) {
+            this.hideLoading();
+            throw e;
+        }
+    }
+
+    private hideLoading() {
+        if (isEmpty(this._instance)) {
+            return;
+        }
+        this._counter -= 1;
+        if (this._counter > 0) {
+            return;
+        }
+        (this._instance as Vue).$store.commit("showLoading", false);
+    }
+
+    private showLoading() {
+        if (isEmpty(this._instance)) {
+            return;
+        }
+        this._counter += 1;
+        (this._instance as Vue).$store.commit("showLoading", true);
     }
 }

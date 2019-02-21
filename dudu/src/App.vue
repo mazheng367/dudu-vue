@@ -1,26 +1,38 @@
 <template>
     <div id="app">
-        <el-container>
-            <el-header>Header</el-header>
+        <el-container ref="mainContainer" v-loading="isLoading">
+            <el-header>
+                <dudu-header @logoclick="goHome"/>
+            </el-header>
             <el-container>
                 <el-aside width="200px">Aside</el-aside>
-                <el-main>Main</el-main>
+                <el-main>
+                    <router-view/>
+                </el-main>
             </el-container>
         </el-container>
+        <div></div>
     </div>
 </template>
 <script lang="ts">
     import {Vue, Component} from 'vue-property-decorator';
-    import DuduMain from './views/Main.vue';
+    import DuduHeader from './views/main/Header.vue';
 
     @Component({
-        components: {DuduMain}
+        components: {
+            DuduHeader
+        }
     })
     export default class App extends Vue {
+        get isLoading() {
+            return this.$store.state.loading;
+        }
 
+        goHome() {
+            this.$router.push("/");
+        }
     }
 </script>
-<style lang="scss" src="./styles/common.scss"></style>
 <style lang="scss">
     #app {
         font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -28,6 +40,9 @@
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
         color: #2c3e50;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box !important;
     }
 
     #nav {
@@ -43,11 +58,8 @@
         }
     }
 
-    .el-header, .el-footer {
-        background-color: #B3C0D1;
-        color: #333;
-        text-align: center;
-        line-height: 60px;
+    .el-header {
+        padding: 0 !important;
     }
 
     .el-aside {

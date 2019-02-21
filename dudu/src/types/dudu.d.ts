@@ -1,12 +1,8 @@
-import Request from "@/common/Request";
+import {VueRequest} from "@/utils/Request";
 
 declare module 'vue/types/vue' {
-
     // 扩充
     interface Vue {
-        $http: Request;
+        $http: VueRequest;
     }
-
-
-
 }
