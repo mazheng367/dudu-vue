@@ -1,10 +1,10 @@
 <template>
     <div id="app">
-        <el-container ref="mainContainer" v-loading="isLoading">
+        <el-container class="" v-loading="isLoading">
             <el-header>
                 <dudu-header @logoclick="goHome"/>
             </el-header>
-            <el-container>
+            <el-container class="comp-body">
                 <el-aside width="200px">Aside</el-aside>
                 <el-main>
                     <router-view/>
@@ -43,6 +43,10 @@
         width: 100%;
         height: 100%;
         box-sizing: border-box !important;
+
+        & > .el-container {
+            height: 100%;
+        }
     }
 
     #nav {
@@ -76,8 +80,12 @@
         line-height: 160px;
     }
 
-    body > .el-container {
-        margin-bottom: 40px;
+    .el-container {
+        width: 100%;
+    }
+
+    .comp-body {
+        height: 100%;
     }
 
     .el-container:nth-child(5) .el-aside,
@@ -87,5 +95,9 @@
 
     .el-container:nth-child(7) .el-aside {
         line-height: 320px;
+    }
+
+    .el-loading-mask {
+        transition-duration: 0s !important;
     }
 </style>

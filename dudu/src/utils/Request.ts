@@ -73,10 +73,10 @@ export class VueRequest extends Request {
         }
     }
 
-    async postData(api: string, params: object) {
+    async queryData(api: string, params: object, method = "POST") {
         try {
             this.showLoading();
-            const data = await super.query(api, params);
+            const data = await super.query(api, params, method);
             this.hideLoading();
             return data;
         } catch (e) {
@@ -101,6 +101,6 @@ export class VueRequest extends Request {
             return;
         }
         this._counter += 1;
-        (this._instance as Vue).$store.commit("showLoading", true);
+        window.setTimeout(() => (this._instance as Vue).$store.commit("showLoading", true), 50);
     }
 }
