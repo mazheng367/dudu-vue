@@ -2,9 +2,9 @@ import axios from 'axios';
 import startsWith from 'lodash/startsWith';
 import Vue from "vue";
 import isEmpty from "lodash/isEmpty";
+import store from '@/store';
 
-export class Request {
-
+class Request {
     async saveData(api: string, pars: object | null): Promise<any> {
         const savedUrl = Request.formatApiUrl(api, {});
         const postedParams = pars || {};
@@ -53,13 +53,7 @@ export class Request {
 }
 
 export class VueRequest extends Request {
-    private _instance: Vue | null = null;
-
     private _counter = 0;
-
-    set vueInstance(value: Vue) {
-        this._instance = value;
-    }
 
     async saveData(api: string, params: object) {
         try {
@@ -86,21 +80,17 @@ export class VueRequest extends Request {
     }
 
     private hideLoading() {
-        if (isEmpty(this._instance)) {
-            return;
-        }
         this._counter -= 1;
         if (this._counter > 0) {
             return;
         }
-        (this._instance as Vue).$store.commit("showLoading", false);
+        store.commit("showLoading", false)
     }
 
     private showLoading() {
-        if (isEmpty(this._instance)) {
-            return;
-        }
         this._counter += 1;
-        window.setTimeout(() => (this._instance as Vue).$store.commit("showLoading", true), 50);
+        window.setTimeout(() => store.commit("showLoading", true), 50);
     }
 }
+
+export default new VueRequest();

@@ -30,6 +30,5 @@ export default new Vuex.Store({
         dataInited(state) {
             state.dataInited = true;
         }
-    },
-    actions: {}
+    }
 })
