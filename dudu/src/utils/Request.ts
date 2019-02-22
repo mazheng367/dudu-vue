@@ -89,7 +89,8 @@ export class VueRequest extends Request {
 
     private showLoading() {
         this._counter += 1;
-        window.setTimeout(() => store.commit("showLoading", true), 50);
+        //window.setTimeout(() => store.commit("showLoading", true), 50);
+        store.commit("showLoading", true);
     }
 }
 

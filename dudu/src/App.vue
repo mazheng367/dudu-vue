@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <el-container class="" v-loading="isLoading">
+        <el-container>
             <el-header>
                 <dudu-header @logoclick="goHome"/>
             </el-header>
@@ -11,16 +11,17 @@
                 </el-main>
             </el-container>
         </el-container>
-        <div></div>
+        <dudu-loading :show="isLoading"/>
     </div>
 </template>
 <script lang="ts">
     import {Vue, Component} from 'vue-property-decorator';
     import DuduHeader from './views/main/Header.vue';
+    import DuduLoading from './components/Loading.vue';
 
     @Component({
         components: {
-            DuduHeader
+            DuduHeader, DuduLoading
         }
     })
     export default class App extends Vue {
