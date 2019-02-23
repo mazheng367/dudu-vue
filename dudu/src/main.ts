@@ -1,21 +1,21 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import store from './store'
+import store from './store';
 
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
-import {library} from '@fortawesome/fontawesome-svg-core'
-import {fas} from '@fortawesome/free-solid-svg-icons'
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {fas} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 import {VueRequest} from './utils/Request';
 
 import {checkScreenZoom} from './utils/BrowserCheck';
 
 import "./styles/common.scss";
-import {VueRouter} from "vue-router/types/router";
+
 import {Store} from "vuex";
 
 library.add(fas);
@@ -32,7 +32,7 @@ let stateReady = false;
 
 //注册全局守护导航
 //加载完用户信息和菜单信息后，才继续执行页面
-router.beforeEach((from, to, next) => {
+router.beforeEach((to, from, next) => {
     if (stateReady) {
         next();
     } else {
@@ -52,14 +52,10 @@ new Vue({
     render: h => h(App),
     mounted() {
         const me = this;
-
         //获取用户信息，加载必要数据
         initUserInfo(me.$store)
             .then(() => loadDataAndMenu())
-            .then(({dataDict, menuData}) => {
-                resolveDataDict(dataDict);
-                addRoutes(me.$router, menuData);
-            })
+            .then(({dataDict}) => ((window as any).eval(dataDict)))
             .then(() => eventHub.$emit("allstateready"));
     }
 }).$mount('#app');
@@ -73,13 +69,4 @@ function loadDataAndMenu(): Promise<{ dataDict: any, menuData: any }> {
         store.dispatch("loadDataDict"),
         store.dispatch("loadMenuData")
     ]).then(([dataDict, menuData]) => ({dataDict, menuData}));
-}
-
-function resolveDataDict(data: string) {
-    (window as any).eval(data);
-}
-
-function addRoutes(router: VueRouter, menus: Array<any>) {
-    const views = [];
-    if(menus&&menus)
 }

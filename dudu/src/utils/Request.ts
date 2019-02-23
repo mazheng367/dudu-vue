@@ -54,7 +54,6 @@ declare type VueRequestContext = Store<any> | ActionContext<any, any>;
 
 export class VueRequest extends Request {
     private _store: VueRequestContext;
-    private _counter = 0;
 
     constructor(store: VueRequestContext) {
         super();
@@ -86,16 +85,10 @@ export class VueRequest extends Request {
     }
 
     private hideLoading() {
-        this._counter -= 1;
-        if (this._counter > 0) {
-            return;
-        }
-        this._store.commit("showLoading", false)
+        this._store.commit("completedRequest");
     }
 
     private showLoading() {
-        this._counter += 1;
-        //window.setTimeout(() => store.commit("showLoading", true), 50);
-        this._store.commit("showLoading", true);
+        this._store.commit("startRequest");
     }
 }

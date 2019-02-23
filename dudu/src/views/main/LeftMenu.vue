@@ -13,12 +13,12 @@
         render(createElement: Function) {
             const menus = this.subMenus;
 
-            function createSubMenu(menu): VNode {
+            function createSubMenu(menu: any): VNode {
                 if (!menu || !menu.children || !menu.children.length) {
                     return createElement("el-menu-item", {props: {index: menu.pathId}}, menu.text);
                 }
                 const items: VNode[] = [createElement("template", {slot: "title"}, menu.text)];
-                menu.children.forEach(item => {
+                menu.children.forEach((item: any) => {
                     items.push(createSubMenu(item));
                 });
                 return createElement("el-submenu", {
@@ -31,7 +31,7 @@
                 children.push(createSubMenu(menu));
             });
 
-            return createElement("el-menu", {props: {index: 11111111111111}}, children);
+            return createElement("el-menu", {props: {index: "sub-root"}}, children);
         }
     }
 </script>

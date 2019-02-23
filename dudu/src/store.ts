@@ -6,19 +6,13 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        loading: false,
         appUser: null,
         menuData: null,
         subMenu: null,
         dataDict: null,
+        ajaxRequestCounter: 0
     },
     mutations: {
-        showLoading(state, show) {
-            if (show === null || show === undefined) {
-                show = false;
-            }
-            state.loading = show;
-        },
         appUser(state, user) {
             state.appUser = user;
         },
@@ -30,6 +24,12 @@ export default new Vuex.Store({
         },
         subMenu(state, subs) {
             state.subMenu = JSON.parse(JSON.stringify(subs));
+        },
+        startRequest(state) {
+            state.ajaxRequestCounter += 1;
+        },
+        completedRequest(state) {
+            state.ajaxRequestCounter -= 1;
         }
     },
     actions: {

@@ -27,7 +27,7 @@
     })
     export default class App extends Vue {
         get isLoading() {
-            return this.$store.state.loading;
+            return this.$store.state.ajaxRequestCounter > 0;
         }
 
         get showLeftSub() {
