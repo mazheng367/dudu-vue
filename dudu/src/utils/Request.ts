@@ -1,8 +1,6 @@
 import axios from 'axios';
 import startsWith from 'lodash/startsWith';
-import Vue from "vue";
-import isEmpty from "lodash/isEmpty";
-import store from '@/store';
+import {ActionContext, Store} from "vuex";
 
 class Request {
     async saveData(api: string, pars: object | null): Promise<any> {
@@ -52,8 +50,16 @@ class Request {
     }
 }
 
+declare type VueRequestContext = Store<any> | ActionContext<any, any>;
+
 export class VueRequest extends Request {
+    private _store: VueRequestContext;
     private _counter = 0;
+
+    constructor(store: VueRequestContext) {
+        super();
+        this._store = store;
+    }
 
     async saveData(api: string, params: object) {
         try {
@@ -84,14 +90,12 @@ export class VueRequest extends Request {
         if (this._counter > 0) {
             return;
         }
-        store.commit("showLoading", false)
+        this._store.commit("showLoading", false)
     }
 
     private showLoading() {
         this._counter += 1;
         //window.setTimeout(() => store.commit("showLoading", true), 50);
-        store.commit("showLoading", true);
+        this._store.commit("showLoading", true);
     }
 }
-
-export default new VueRequest();

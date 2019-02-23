@@ -4,36 +4,56 @@
             <img alt="wait" src="../../../public/resources/logo-nav.png"/>
         </div>
         <div class="top-menu">
-            <el-menu mode="horizontal">
-                <el-menu-item v-for="(menu,index) in menus" :index="index+''" :key="'key_'+index">{{menu.name}}</el-menu-item>
+            <el-menu mode="horizontal" @select="menuClick">
+                <el-menu-item v-for="(menu,index) in topMenus" :index="index+''" :key="'key_'+index">
+                    <font-awesome-icon class="menu-icon" :icon="menu.iconCls|vueIconCls"/>
+                    {{menu.text}}
+                </el-menu-item>
             </el-menu>
         </div>
         <div class="detail-container">
-
         </div>
     </div>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from 'vue-property-decorator';
+    import {Component, Vue, Watch} from 'vue-property-decorator';
+    import {vueIconCls} from '@/utils/Filters';
+    import {RouteConfig} from "vue-router";
 
     @Component({
-        name: "DuduHeader"
+        name: "DuduHeader",
+        filters: {
+            vueIconCls
+        }
     })
     export default class DuduHeader extends Vue {
-        data() {
-            return {
-                menus: [
-                    {name: "邮件中心"},
-                    {name: "text2"},
-                    {name: "text3cle"}
-                ]
-            }
-        }
-
         logoClick() {
             this.$emit("logoclick");
             console.log(this.$http);
+        }
+
+        get topMenus() {
+            return this.$store.state.menuData || [];
+        }
+
+        menuClick(index: string) {
+            const currentMenu = this.$store.state.menuData[index];
+            let subs = [];
+            if (currentMenu.children && currentMenu.children.length) {
+                subs = JSON.parse(JSON.stringify(currentMenu.children));
+            }
+            this.$store.dispatch("setSubMenu", subs);
+        }
+
+        @Watch("topMenus", {deep: false})
+        onMenuDataChanged(newVal: Array<any>) {
+            if (!newVal || !newVal.length) {
+                return;
+            }
+            const routers: RouteConfig[] = [];
+            newVal.forEach(menu => routers.push({name: menu.pathId, path: ""}));
+            this.$router.addRoutes(routers);
         }
     }
 </script>
@@ -42,6 +62,7 @@
     .app-header {
         background-color: $header-backgroud-color;
         display: flex;
+        min-height: 60px;
     }
 
     .app-logo {
@@ -72,6 +93,12 @@
                     background-color: #00599b;
                     color: #fff;
                     border-bottom: 0;
+                }
+
+                .menu-icon {
+                    font-size: 16px;
+                    margin-top: -1px;
+                    padding: 0 3px;
                 }
             }
         }

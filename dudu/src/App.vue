@@ -5,7 +5,9 @@
                 <dudu-header @logoclick="goHome"/>
             </el-header>
             <el-container class="comp-body">
-                <el-aside width="200px">Aside</el-aside>
+                <el-aside width="200px" v-show="showLeftSub">
+                    <dudu-left-menu/>
+                </el-aside>
                 <el-main>
                     <router-view/>
                 </el-main>
@@ -18,15 +20,18 @@
     import {Vue, Component} from 'vue-property-decorator';
     import DuduHeader from './views/main/Header.vue';
     import DuduLoading from './components/Loading.vue';
+    import DuduLeftMenu from './views/main/LeftMenu.vue';
 
     @Component({
-        components: {
-            DuduHeader, DuduLoading
-        }
+        components: {DuduHeader, DuduLoading, DuduLeftMenu}
     })
     export default class App extends Vue {
         get isLoading() {
             return this.$store.state.loading;
+        }
+
+        get showLeftSub() {
+            return (this.$store.state.subMenu || []).length > 0;
         }
 
         goHome() {

@@ -6,11 +6,21 @@ import store from './store'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
-import httpRequest from './utils/Request';
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {fas} from '@fortawesome/free-solid-svg-icons'
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+
+import {VueRequest} from './utils/Request';
 
 import {checkScreenZoom} from './utils/BrowserCheck';
 
 import "./styles/common.scss";
+import {VueRouter} from "vue-router/types/router";
+import {Store} from "vuex";
+
+library.add(fas);
+
+Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.config.productionTip = false;
 
@@ -18,55 +28,58 @@ Vue.use(ElementUI);
 
 const eventHub = new Vue();
 
+let stateReady = false;
+
 //注册全局守护导航
 //加载完用户信息和菜单信息后，才继续执行页面
 router.beforeEach((from, to, next) => {
-    if (store.state.appUser) {
-        onUserAuthed(next);
-        return;
+    if (stateReady) {
+        next();
+    } else {
+        eventHub.$once("allstateready", function () {
+            stateReady = true;
+            next();
+            eventHub.$destroy();
+        });
     }
-    eventHub.$once("signedin", function () {
-        onUserAuthed(next);
-        eventHub.$destroy();
-    });
 });
 
-function onUserAuthed(next: Function) {
-    if (store.state.dataInited) {
-        next();
-        return;
-    }
-    loadDataAndMenu().then(() => next());
-}
-
-Vue.prototype.$http = httpRequest;
+Vue.prototype.$http = new VueRequest(store);
 
 new Vue({
     router,
     store,
     render: h => h(App),
     mounted() {
-        checkUserPermission.call(this);
+        const me = this;
+
+        //获取用户信息，加载必要数据
+        initUserInfo(me.$store)
+            .then(() => loadDataAndMenu())
+            .then(({dataDict, menuData}) => {
+                resolveDataDict(dataDict);
+                addRoutes(me.$router, menuData);
+            })
+            .then(() => eventHub.$emit("allstateready"));
     }
 }).$mount('#app');
 
-function checkUserPermission(this: Vue) {
-    this.$http.queryData(`/api/user/UserInfo`, {"_": Math.random().toString().replace(/\D/g, '')}, 'GET').then(function (user: any) {
-        store.commit("appUser", user);
-        eventHub.$emit("signedin");//触发用户登录完成事件
-        window.setInterval(function () {
-            checkScreenZoom();
-        }, 5000);
-    }, () => (window as any).Auth.redirectToLogin());
+function initUserInfo(store: Store<any>) {
+    return store.dispatch("loadUserInfo").then(() => window.setInterval(() => checkScreenZoom(), 5000), () => (window as any).Auth.redirectToLogin());
 }
 
-function loadDataAndMenu() {
+function loadDataAndMenu(): Promise<{ dataDict: any, menuData: any }> {
     return Promise.all([
-        httpRequest.queryData("/api/menu/Menu", {}),
-        httpRequest.queryData("/api/dd/Datadict", {})
-    ]).then(([menuCache, dataDict]) => {
-        store.commit("menuData", menuCache);
-        store.commit("dataDict", dataDict);
-        store.commit("dataInited", true);
-    });
+        store.dispatch("loadDataDict"),
+        store.dispatch("loadMenuData")
+    ]).then(([dataDict, menuData]) => ({dataDict, menuData}));
+}
+
+function resolveDataDict(data: string) {
+    (window as any).eval(data);
+}
+
+function addRoutes(router: VueRouter, menus: Array<any>) {
+    const views = [];
+    if(menus&&menus)
 }
