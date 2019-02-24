@@ -10,6 +10,7 @@ export default new Vuex.Store({
         menuData: null,
         subMenu: null,
         dataDict: null,
+        currentPath: "/",
         ajaxRequestCounter: 0
     },
     mutations: {
@@ -24,6 +25,9 @@ export default new Vuex.Store({
         },
         subMenu(state, subs) {
             state.subMenu = JSON.parse(JSON.stringify(subs));
+        },
+        currentPath(state, path) {
+            state.currentPath = path;
         },
         startRequest(state) {
             state.ajaxRequestCounter += 1;

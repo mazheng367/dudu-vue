@@ -57,6 +57,19 @@ new Vue({
             .then(() => loadDataAndMenu())
             .then(({dataDict}) => ((window as any).eval(dataDict)))
             .then(() => eventHub.$emit("allstateready"));
+    },
+    computed: {
+        routePath: function () {
+            return this.$store.state.currentPath;
+        }
+    },
+    watch: {
+        "routePath": {
+            handler: function () {
+                debugger;
+                alert("asdasd");
+            }
+        }
     }
 }).$mount('#app');
 

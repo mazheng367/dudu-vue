@@ -17,7 +17,7 @@
     </div>
 </template>
 <script lang="ts">
-    import {Vue, Component} from 'vue-property-decorator';
+    import {Vue, Component, Watch} from 'vue-property-decorator';
     import DuduHeader from './views/main/Header.vue';
     import DuduLoading from './components/Loading.vue';
     import DuduLeftMenu from './views/main/LeftMenu.vue';
