@@ -16,7 +16,7 @@ export default new Router({
         {
             path: '/:view',
             name: 'main',
-            component: () => import(/* webpackChunkName: "about" */ './views/DuduCompnentContainer.vue')
+            component: () => import(/* webpackChunkName: "about" */ './views/CompnentContainer.vue')
         },
         {
             path: '*',

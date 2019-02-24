@@ -2,14 +2,13 @@
     <div>HAHAHAHAHAHAH</div>
 </template>
 
-<script>
+<script lang="ts">
     import {Component} from "vue-property-decorator";
     import BaseComponent from '../../components/BaseComponent';
 
-    @Component
+    @Component({name: "dudu-email-index"})
     export default class EmailIndex extends BaseComponent {
         created() {
-            debugger;
             console.log(this.queryMap);
         }
     }
