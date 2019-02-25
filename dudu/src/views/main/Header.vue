@@ -20,6 +20,7 @@
     import {Component, Vue, Watch} from 'vue-property-decorator';
     import {vueIconCls} from '@/utils/Filters';
     import {RouteConfig} from "vue-router";
+    import isEmpty from "lodash/isEmpty";
 
     @Component({
         name: "DuduHeader",
@@ -30,7 +31,6 @@
     export default class DuduHeader extends Vue {
         logoClick() {
             this.$emit("logoclick");
-            console.log(this.$http);
         }
 
         get topMenus() {
@@ -41,9 +41,12 @@
             const currentMenu = this.$store.state.menuData[index];
             let subs = [];
             if (currentMenu.children && currentMenu.children.length) {
-                subs = JSON.parse(JSON.stringify(currentMenu.children));
+                subs = JSON.parse(JSON.stringify(currentMenu.children)) || [];
             }
             this.$store.dispatch("setSubMenu", subs);
+            if (!subs.length && !isEmpty(currentMenu.view)) {
+                this.$store.commit("currentView", currentMenu.view);
+            }
         }
 
         @Watch("topMenus", {deep: false})

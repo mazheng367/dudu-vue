@@ -2,6 +2,7 @@
     import {Vue, Component, Watch} from 'vue-property-decorator';
     import CompMap from './comp-map';
     import isEmpty from 'lodash/isEmpty';
+    import Error from './Error.vue';
 
     @Component
     export default class CompnentContainer extends Vue {
@@ -21,8 +22,7 @@
             }
 
             if (!CompMap.hasOwnProperty(compName)) {
-                //throw `没有找到组件:${compName}，请检查comp-map.ts文件是否正确配置`;
-                return;
+                return createElement(Error);
             }
             return createElement(CompMap[compName], {props: {"query-map": this.$route.query}});
         }

@@ -17,6 +17,7 @@ import {checkScreenZoom} from './utils/BrowserCheck';
 import "./styles/common.scss";
 
 import {Store} from "vuex";
+import isEmpty from "lodash/isEmpty";
 
 library.add(fas);
 
@@ -39,6 +40,7 @@ router.beforeEach((to, from, next) => {
         eventHub.$once("allstateready", function () {
             stateReady = true;
             next();
+            store.commit("currentView", to.fullPath);
             eventHub.$destroy();
         });
     }
@@ -56,19 +58,20 @@ new Vue({
         initUserInfo(me.$store)
             .then(() => loadDataAndMenu())
             .then(({dataDict}) => ((window as any).eval(dataDict)))
-            .then(() => eventHub.$emit("allstateready"));
+            .then(() => eventHub.$emit("allstateready"))
+            .then(() => me.$watch("routeView", me.onRouteChange));
     },
-    computed: {
-        routePath: function () {
-            return this.$store.state.currentPath;
+    methods: {
+        onRouteChange(view: string) {
+            if (isEmpty(view)) {
+                return;
+            }
+            this.$router.push(view);
         }
     },
-    watch: {
-        "routePath": {
-            handler: function () {
-                debugger;
-                alert("asdasd");
-            }
+    computed: {
+        routeView: function () {
+            return this.$store.state.currentView;
         }
     }
 }).$mount('#app');

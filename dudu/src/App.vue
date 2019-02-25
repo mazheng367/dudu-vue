@@ -5,7 +5,7 @@
                 <dudu-header @logoclick="goHome"/>
             </el-header>
             <el-container class="comp-body">
-                <el-aside width="200px" v-show="showLeftSub">
+                <el-aside style="min-width: 200px" width="auto" v-show="showLeftSub">
                     <dudu-left-menu/>
                 </el-aside>
                 <el-main>
@@ -17,7 +17,7 @@
     </div>
 </template>
 <script lang="ts">
-    import {Vue, Component, Watch} from 'vue-property-decorator';
+    import {Vue, Component} from 'vue-property-decorator';
     import DuduHeader from './views/main/Header.vue';
     import DuduLoading from './components/Loading.vue';
     import DuduLeftMenu from './views/main/LeftMenu.vue';
@@ -35,7 +35,8 @@
         }
 
         goHome() {
-            this.$router.push("/");
+            this.$store.commit("subMenu", []);
+            this.$store.commit("currentView", "/");
         }
     }
 </script>
