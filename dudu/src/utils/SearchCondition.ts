@@ -1,21 +1,26 @@
-import objectAssignIn from "lodash/assignIn";
-import {isEmpty} from "lodash-es";
+import objectAssign from "lodash/assign";
+import objectAssignWith from "lodash/assignWith";
+import isEmpty from "lodash/isEmpty";
+import startsWith from "lodash/startsWith";
+import cloneDeep from "lodash/cloneDeep";
 
 class ConditionData {
     Name: string;
     QuickSearchValue: string;
-    DefinedConds: Array<any>;
-    DefinedAppends: Array<any>;
+    DefinedConds: Array<CondItem>;
+    DefinedAppends: Array<CondItem>;
     CondRelation: string;
-    SortAttrs: {};
-    Params: {};
+    SortAttrs: { [key: string]: string };
+    Params: { [key: string]: string };
     QuickName: string;
     QuickID: number;
-    Quicks: {};
+    Quicks: { [key: string]: string };
     DateOffset: number;
     CurrentDate: string;
     PageNo: number;
     PageRow: number;
+
+    [key: string]: any;
 
     constructor() {
         this.Name = "";
@@ -35,15 +40,24 @@ class ConditionData {
     }
 }
 
-class SearchCondition {
+interface CondItem {
+    Name: string;
+    Operator: number;
+    Value1: string;
+    Value2: string;
+}
+
+export class SearchCondition {
 
     private condPosIndex = 1;
 
     private _opers = ["or", "and"];
     private _condData: ConditionData | null = null;
 
-    constructor(config: ConditionData) {
-        this.condData = objectAssignIn(new ConditionData(), config);
+    constructor(config?: ConditionData) {
+        if (config !== null && config !== undefined) {
+            this.condData = objectAssign(new ConditionData(), config);
+        }
     }
 
     set condData(value) {
@@ -60,7 +74,7 @@ class SearchCondition {
         if (typeof obj === "string") {
             newData = JSON.parse(obj) as ConditionData;
         }
-        objectAssignIn(old, newData);
+        objectAssign(old, newData);
         this.condPosIndex = newData.DefinedConds.length + 1;
         return this;
     }
@@ -70,7 +84,7 @@ class SearchCondition {
             return;
         }
         const data = this.condData;
-        objectAssignIn(data, newData);
+        objectAssign(data, newData);
         if (newData.DefinedConds) {
             this.condPosIndex = newData.DefinedConds.length + 1;
         }
@@ -78,8 +92,8 @@ class SearchCondition {
     }
 
 
-    and(field, value, operator) {
-        if (typeof field === "object" && field instanceof Dudu.util.SearchCondition) {
+    and(field: string | SearchCondition, value: any, operator: number) {
+        if (typeof field === "object" && field instanceof SearchCondition) {
             this.addConditionObject(field, true);
         } else {
             this.addCondition(field, value, operator, true);
@@ -88,8 +102,8 @@ class SearchCondition {
     }
 
 
-    or(field, value, operator) {
-        if (typeof field === "object" && field instanceof Dudu.util.SearchCondition) {
+    or(field: string | SearchCondition, value: any, operator: number) {
+        if (typeof field === "object" && field instanceof SearchCondition) {
             this.addConditionObject(field, false);
         } else {
             this.addCondition(field, value, operator, false);
@@ -98,15 +112,18 @@ class SearchCondition {
     }
 
 
-    addConditionObject(cond, and) {
-        const condData = cond.getCondData();
+    addConditionObject(cond: SearchCondition, and: boolean) {
+        const condData = cond.condData;
+        if (condData === null || condData === undefined) {
+            return;
+        }
         let isEmptyCondData = true;
         if (condData.DefinedConds && condData.DefinedConds.length) {
-            Array.prototype.push.apply(this.getCondData().DefinedConds, condData.DefinedConds);
+            Array.prototype.push.apply(condData.DefinedConds, condData.DefinedConds);
             isEmptyCondData = false;
         }
         if (condData.DefinedAppends && condData.DefinedAppends.length) {
-            Array.prototype.push.apply(this.getCondData().DefinedAppends, condData.DefinedAppends);
+            Array.prototype.push.apply(condData.DefinedAppends, condData.DefinedAppends);
             isEmptyCondData = false;
         }
         if (!isEmptyCondData) {
@@ -118,13 +135,15 @@ class SearchCondition {
     }
 
 
-    addCondition(field, value, operator, and) {
-        const condData = this.getCondData();
-        if (!Dudu.util.Common.isBlank(condData.Name) && !Ext.String.startsWith(field, condData.Name)) {
+    addCondition(field: string, value: any, operator: number, and: boolean) {
+        const condData = this.condData;
+        if (condData === null || condData === undefined) {
+            return;
+        }
+        if (!isEmpty(condData.Name) && !startsWith(field, condData.Name)) {
             field = condData.Name + "." + field;
         }
-        const newCond = {Name: field, Operator: operator},
-            data = this.getCondData();
+        const newCond = {Name: field, Operator: operator, Value1: "", Value2: ""};
         if (value && Object.prototype.toString.call(value) === "[object Object]" && value.hasOwnProperty("Value1") && value.hasOwnProperty("Value2")) {
             newCond.Value1 = value.Value1 + "";
             newCond.Value2 = value.Value2 + "";
@@ -132,15 +151,18 @@ class SearchCondition {
             newCond.Value1 = value + "";
             newCond.Value2 = "";
         }
-        data.DefinedConds.push(newCond);
+        condData.DefinedConds.push(newCond);
         this.setConditionRelation(Number(and !== false));
     }
 
 
-    setSorter(prop, direct) {
-        const data = this.getCondData(),
-            sorters = data.SortAttrs;
-        if (!Dudu.util.Common.isBlank(data.Name) && !Ext.String.startsWith(prop, data.Name)) {
+    setSorter(prop: string, direct: string) {
+        const data = this.condData;
+        if (data === null || data === undefined) {
+            return;
+        }
+        const sorters = data.SortAttrs;
+        if (!isEmpty(data.Name) && !startsWith(prop, data.Name)) {
             prop = data.Name + "." + prop;
         }
         sorters[prop] = direct;
@@ -148,35 +170,43 @@ class SearchCondition {
 
 
     clearSorters() {
-        const data = this.getCondData(),
-            sorters = data.SortAttrs,
-            props = Ext.Object.getKeys(sorters);
+        const data = this.condData;
+        if (data === null || data === undefined) {
+            return;
+        }
+        const sorters = data.SortAttrs,
+            props = Object.keys(sorters);
         if (props && props.length) {
-            Ext.Array.forEach(props, p => delete sorters[p]);
+            props.forEach(p => delete sorters[p]);
         }
     }
 
 
     clearCondition() {
-        const data = this.getCondData();
+        const data = this.condData;
+        if (data === null || data === undefined) {
+            return;
+        }
         data.DefinedConds.length = 0;
         data.CondRelation = "";
         this.condPosIndex = 1;
     }
 
-
-    setConditionRelation(op, objRel) {
-        const data = this.getCondData();
+    setConditionRelation(op: number, objRel?: any) {
+        const data = this.condData;
         let expr = "";
-        if (objRel !== null && objRel !== undefined && (typeof objRel === "string") && !Dudu.util.Common.isBlank(objRel)) {
+        if (data === null || data == undefined) {
+            return;
+        }
+        if (objRel !== null && objRel !== undefined && (typeof objRel === "string") && !isEmpty(objRel)) {
             let o = this.condPosIndex;
-            expr = objRel.replace(/\d+/g, () => o++);
+            expr = objRel.replace(/\d+/g, () => `${o++}`);
             this.condPosIndex = o;
         } else {
-            expr = this.condPosIndex;
+            expr = this.condPosIndex.toString();
             this.condPosIndex += 1;
         }
-        if (Dudu.util.Common.isBlank(data.CondRelation)) {
+        if (isEmpty(data.CondRelation)) {
             data.CondRelation = `${expr}`;
         } else {
             data.CondRelation += ` ${this._opers[op]} ${expr}`;
@@ -184,22 +214,26 @@ class SearchCondition {
     }
 
 
-    setName(name) {
-        const condData = this.getCondData();
-        condData.Name = name;
+    setName(name: string) {
+        const condData = this.condData;
+        if (condData) {
+            condData.Name = name;
+        }
     }
 
 
-    setParams(name, value, override) {
+    setParams(name: string, value: any, override: boolean) {
         let rewrite = override !== false;
-        const data = this.getCondData();
-
+        const data = this.condData;
+        if (data === null || data == undefined) {
+            return;
+        }
         if (typeof name === "object") {
             rewrite = !!value;
             if (rewrite) {
-                Ext.apply(data.Params, name);
+                objectAssign(data.Params, name);
             } else {
-                Ext.applyIf(data.Params, name);
+                objectAssignWith(data.Params, name, (oldValue, srcValue) => (oldValue === null || oldValue === undefined) ? srcValue : oldValue);
             }
         } else {
             if (name && value !== null && value !== undefined) {
@@ -210,89 +244,77 @@ class SearchCondition {
         }
     }
 
-
-    setQuicks(id, name, quicks) {
-        const condData = this.getCondData();
+    setQuicks(id: string, name: string, quicks: any) {
+        const condData = this.condData;
+        if (condData === null || condData === undefined) {
+            return;
+        }
         if (id && !isNaN(Number(id))) {
             condData.QuickID = Number(id);
         }
         condData.QuickName = decodeURIComponent(name);
-        if (!Ext.Object.isEmpty(quicks)) {
+        if (!isEmpty(quicks)) {
             condData.Quicks = quicks;
         }
     }
 
-
     stringify() {
-        const dataItem = this.getCondData(),
-            copyItem = Ext.apply({}, dataItem);
+        const dataItem = this.condData,
+            copyItem = objectAssign({}, dataItem);
         //复制新数组
-        copyItem.DefinedConds = this.getCopyArray("DefinedConds");
+        copyItem.DefinedConds = this.getCopyArray<CondItem>("DefinedConds") || [];
         if (copyItem.DefinedConds && copyItem.DefinedConds.length) {
-            Ext.Array.forEach(copyItem.DefinedConds, function (item) {
+            copyItem.DefinedConds.forEach(function (item) {
                 if (!item) {
                     return;
                 }
                 if (item.hasOwnProperty("and")) {
-                    delete item.and;
+                    delete (<any>item).and;
                 }
                 if (item.hasOwnProperty("deletable")) {
-                    delete item.deletable;
+                    delete (<any>item).deletable;
                 }
             });
         }
-        return Ext.JSON.encode(copyItem);
+        return JSON.stringify(copyItem);
     }
 
-
-    getCopyArray(prop) {
-        const dataItem = this.getCondData(),
-            source = dataItem[prop],
-            target = [];
+    getCopyArray<T>(prop: any) {
+        const dataItem = this.condData;
+        if (dataItem === null || dataItem === undefined) {
+            return;
+        }
+        const source = dataItem[prop],
+            target: Array<T> = [];
         if (source && source.length) {
-            Ext.Array.forEach(source, function (item) {
-                target.push(Ext.apply({}, item));
-            });
+            source.forEach((item: any) => target.push(objectAssign({}, item) as T));
         }
         return target;
     }
 
-
-    setPageRow(row) {
-        const condData = this.getCondData();
+    setPageRow(row: number) {
+        const condData = this.condData;
+        if (condData === null || condData === undefined) {
+            return;
+        }
         if (!row || row < 0) {
             row = 10;
         }
         condData.PageRow = row;
     }
 
-
-    setPageNo(no) {
-        const condData = this.getCondData();
+    setPageNo(no: number) {
+        const condData = this.condData;
+        if (condData === null || condData === undefined) {
+            return;
+        }
         if (!no || no < 0) {
             no = 0;
         }
         condData.PageNo = no;
     }
 
-
     clone() {
-        const newCond = Ext.create("Dudu.util.SearchCondition"),
-            currentCondData = this.getCondData(),
-            newData = newCond.getCondData();
-        //复制非引用字段
-        Ext.copy(newData, this.getCondData(), "Name,QuickSearchValue,CondRelation,QuickName,QuickID,DateOffset,CurrentDate,PageNo,PageRow");
-        //复制引用字段
-        newData.SortAttrs = Ext.apply({}, currentCondData.SortAttrs);
-        newData.Params = Ext.apply({}, currentCondData.Params);
-        newData.Quicks = Ext.apply({}, currentCondData.Quicks);
-        Ext.Array.forEach(currentCondData.DefinedConds, cond => {
-            newData.DefinedConds.push(Ext.apply({}, cond));
-        });
-        Ext.Array.forEach(currentCondData.DefinedAppends, condAppend => {
-            newData.DefinedAppends.push(Ext.apply({}, condAppend));
-        });
-        newCond.condPosIndex = this.condPosIndex;
-        return newCond;
+        return cloneDeep(this);
     }
 }

@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <el-container>
-            <el-header>
+            <el-header height="50px">
                 <dudu-header @logoclick="goHome"/>
             </el-header>
             <el-container class="comp-body">

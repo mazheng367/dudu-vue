@@ -19,6 +19,8 @@ import "./styles/common.scss";
 import {Store} from "vuex";
 import isEmpty from "lodash/isEmpty";
 
+import Auth from './utils/Auth';
+
 library.add(fas);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
@@ -77,7 +79,8 @@ new Vue({
 }).$mount('#app');
 
 function initUserInfo(store: Store<any>) {
-    return store.dispatch("loadUserInfo").then(() => window.setInterval(() => checkScreenZoom(), 5000), () => (window as any).Auth.redirectToLogin());
+    debugger;
+    return store.dispatch("loadUserInfo").then(() => window.setInterval(() => checkScreenZoom(), 5000), () => Auth.redirectToLogin());
 }
 
 function loadDataAndMenu(): Promise<{ dataDict: any, menuData: any }> {

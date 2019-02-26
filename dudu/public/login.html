@@ -173,71 +173,6 @@
         }
     </style>
     <script type="text/javascript" src="ajax.js?_=20181115"></script>
-    <script type="text/javascript" src="auth.js?_=20181115"></script>
-    <script type="text/javascript">
-        Auth.clear();
-
-        function register() {
-            //window.location.href = 'register.html';
-            window.location.href = 'http://tpr.hnipo.net/cas/login?service=http%3A%2F%2Ftpr.hnipo.net%2Fa%2Flogin%3FredirectUrl%3D%2Ff%2Ftemplate-2';
-        }
-
-        function login() {
-            var tenantCodeText = document.getElementById('tenantCode');
-            var usernameText = document.getElementById('userName');
-            var passwordText = document.getElementById('passWord');
-
-            if (!tenantCodeText.value) {
-                alert('请输入企业代号');
-                tenantCodeText.focus();
-                tenantCodeText.className += ' text-invalid';
-                return;
-            }
-
-            if (!usernameText.value) {
-                alert('请输入用户账号');
-                usernameText.focus();
-                usernameText.className += ' text-invalid';
-                return;
-            }
-
-            var params = {
-                'dudu-tenant': tenantCodeText.value,
-                userName: usernameText.value,
-                passWord: passwordText.value,
-            };
-            var btnLogin = document.getElementById('btn-loginsubmit');
-            btnLogin.setAttribute('disabled', 'disabled');
-            btnLogin.innerText = '登录中...';
-            btnLogin.className += ' disable-button';
-            ajax.post(LOGIN_API, params, function (response, xml) {
-                if (response.status === 401) {
-                    alert('登录失败');
-                    btnLogin.innerText = '登录';
-                    btnLogin.className = btnLogin.className.replace(/\s*disable-button\s*/g, '');
-                    btnLogin.removeAttribute('disabled');
-                    return;
-                }
-                var rs = JSON.parse(response.responseText);
-                if (rs.success) {
-                    Auth.init(rs.token, rs.tenant);
-                    Auth.redirectToIndex();
-                } else {
-                    alert('登录失败:' + response);
-                    btnLogin.innerText = '登录';
-                    btnLogin.className = btnLogin.className.replace(/\s*disable-button\s*/g, '');
-                    btnLogin.removeAttribute('disabled');
-                }
-            });
-        }
-
-        function keypress(e) {
-            var event = window.event || e;
-            if (event.keyCode === 13) {
-                login();
-            }
-        }
-    </script>
 </head>
 <body>
 <div class="headernav">
@@ -266,7 +201,72 @@
     </div>
 </div>
 </body>
+<script type="text/javascript">
+    Auth.clear();
+
+    function register() {
+        //window.location.href = 'register.html';
+        window.location.href = 'http://tpr.hnipo.net/cas/login?service=http%3A%2F%2Ftpr.hnipo.net%2Fa%2Flogin%3FredirectUrl%3D%2Ff%2Ftemplate-2';
+    }
+
+    function login() {
+        var tenantCodeText = document.getElementById('tenantCode');
+        var usernameText = document.getElementById('userName');
+        var passwordText = document.getElementById('passWord');
+
+        if (!tenantCodeText.value) {
+            alert('请输入企业代号');
+            tenantCodeText.focus();
+            tenantCodeText.className += ' text-invalid';
+            return;
+        }
+
+        if (!usernameText.value) {
+            alert('请输入用户账号');
+            usernameText.focus();
+            usernameText.className += ' text-invalid';
+            return;
+        }
+
+        var params = {
+            'dudu-tenant': tenantCodeText.value,
+            userName: usernameText.value,
+            passWord: passwordText.value,
+        };
+        var btnLogin = document.getElementById('btn-loginsubmit');
+        btnLogin.setAttribute('disabled', 'disabled');
+        btnLogin.innerText = '登录中...';
+        btnLogin.className += ' disable-button';
+        ajax.post(LOGIN_API, params, function (response, xml) {
+            if (response.status === 401) {
+                alert('登录失败');
+                btnLogin.innerText = '登录';
+                btnLogin.className = btnLogin.className.replace(/\s*disable-button\s*/g, '');
+                btnLogin.removeAttribute('disabled');
+                return;
+            }
+            var rs = JSON.parse(response.responseText);
+            if (rs.success) {
+                Auth.init(rs.token, rs.tenant);
+                Auth.redirectToIndex();
+            } else {
+                alert('登录失败:' + response);
+                btnLogin.innerText = '登录';
+                btnLogin.className = btnLogin.className.replace(/\s*disable-button\s*/g, '');
+                btnLogin.removeAttribute('disabled');
+            }
+        });
+    }
+
+    function keypress(e) {
+        var event = window.event || e;
+        if (event.keyCode === 13) {
+            login();
+        }
+    }
+</script>
 <script>
+
     var textBoxs = document.querySelectorAll('.login-text-input');
     for (var i = 0; i < textBoxs.length; i++) {
         textBoxs[i].onfocus = function () {

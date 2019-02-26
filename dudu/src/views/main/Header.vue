@@ -5,7 +5,7 @@
         </div>
         <div class="top-menu">
             <el-menu mode="horizontal" @select="menuClick">
-                <el-menu-item v-for="(menu,index) in topMenus" :index="index+''" :key="'key_'+index">
+                <el-menu-item v-for="(menu,index) in topMenus" :index="index+''" :key="'key_'+index" style="height: 50px;line-height: 50px">
                     <font-awesome-icon class="menu-icon" :icon="menu.iconCls|vueIconCls"/>
                     {{menu.text}}
                 </el-menu-item>
@@ -65,7 +65,7 @@
     .app-header {
         background-color: $header-backgroud-color;
         display: flex;
-        min-height: 60px;
+        height: 50px;
     }
 
     .app-logo {

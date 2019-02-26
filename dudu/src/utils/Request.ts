@@ -1,6 +1,7 @@
 import axios from 'axios';
 import startsWith from 'lodash/startsWith';
 import {ActionContext, Store} from "vuex";
+import Auth, {SERVER_HOST} from "@/utils/Auth";
 
 class Request {
     async saveData(api: string, pars: object | null): Promise<any> {
@@ -16,12 +17,13 @@ class Request {
     }
 
     private static async request(url: string, pars: object | null, method: string = "POST") {
+        debugger;
         const resp = await axios({
             method: (method || "POST").toLowerCase(),
             url: url,
             data: pars || {},
             timeout: 1000000,
-            headers: (window as any).Auth.get()
+            headers: Auth.get()
         });
         if (resp.status === 200) {
             return resp.data;
@@ -46,7 +48,7 @@ class Request {
             }
             p = arr.join("&");
         }
-        return `${(window as any).SERVER_HOST}/${api}${p ? "?" + p : ""}`;
+        return `${SERVER_HOST}/${api}${p ? "?" + p : ""}`;
     }
 }
 
